@@ -59,6 +59,12 @@ WebApp._onPageReady = function()
     this.update();
 }
 
+function getElmText(selector)
+{
+    var elm = document.querySelector(selector);
+    return elm ? elm.innerText.trim() || null : null;
+}
+
 // Extract data from the web page
 WebApp.update = function()
 {
@@ -69,7 +75,10 @@ WebApp.update = function()
         artLocation: null,
         rating: null
     }
-
+    track.title = getElmText("#player p[ng-show='model.showTrackName']");
+    if (!track.title)
+        track.title = getElmText("#player p[ng-show='model.showShowName']");
+    track.artist = getElmText("#player p[ng-show='model.showArtistName']");
     player.setTrack(track);
     player.setPlaybackState(PlaybackState.UNKNOWN);
 
