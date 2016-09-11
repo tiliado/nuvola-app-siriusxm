@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Your name <your e-mail>
+ * Copyright 2016 Jiří Janoušek <janousek.jiri@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met: 
@@ -33,6 +33,14 @@ var player = Nuvola.$object(Nuvola.MediaPlayer);
 // Handy aliases
 var PlaybackState = Nuvola.PlaybackState;
 var PlayerAction = Nuvola.PlayerAction;
+
+// SiriusXM Control Buttons
+var Buttons= {
+    PLAY: "play",
+    PAUSE: "pause",
+    PREV_SONG: "rewind",
+    NEXT_SONG: "skip"
+}
 
 // Create new WebApp prototype
 var WebApp = Nuvola.$WebApp();
@@ -75,20 +83,99 @@ WebApp.update = function()
         artLocation: null,
         rating: null
     }
+    
+    /* Hide the mini-player button as it's broken in Nuvola. */
+    var elm = document.querySelector("#player div.pop-out");
+    if (elm)
+        elm.style.visibility = "hidden";
+    
+    /* Parse track metadata */
     track.title = getElmText("#player p[ng-show='model.showTrackName']");
     if (!track.title)
         track.title = getElmText("#player p[ng-show='model.showShowName']");
     track.artist = getElmText("#player p[ng-show='model.showArtistName']");
+    
+    /* TODO: Album art has restricted access */
+    //~ var elm = document.querySelector("div.np-track-art img");
+    //~ if (elm && elm.src != "https://player.siriusxm.com/assets/images/Transparent.gif" && elm.src != "assets/images/Transparent.gif")
+    //~ {
+        //~ track.artLocation = elm.src;
+    //~ }
+    
+    var elm = document.querySelector("div.now-playing-image img");
+    if (elm)
+        track.artLocation = elm.src;
+    
     player.setTrack(track);
-    player.setPlaybackState(PlaybackState.UNKNOWN);
+    
+    /* Parse controls */
+    var state;
+    if (this._getButton(Buttons.PLAY))
+    {
+        state = PlaybackState.PAUSED;
+        player.setCanPlay(true);
+        player.setCanPause(false);
+    }
+    else if (this._getButton(Buttons.PAUSE))
+    {
+        state = PlaybackState.PLAYING;
+        player.setCanPause(true);
+        player.setCanPlay(false);
+    }
+    else
+    {
+        state = PlaybackState.UNKNOWN;
+        player.setCanPause(false);
+        player.setCanPlay(false);
+    }
+    player.setCanGoPrev(!!this._getButton(Buttons.PREV_SONG));
+    player.setCanGoNext(!!this._getButton(Buttons.NEXT_SONG));
+    player.setPlaybackState(state);
 
     // Schedule the next update
     setTimeout(this.update.bind(this), 500);
 }
 
+WebApp._getButton = function(action)
+{
+    var elm = document.querySelector(".scrub-controls div[ng-click='" + action + "()']");
+    return elm && !elm.classList.contains("ng-hide") ? elm : false;
+}
+
+WebApp._clickButton = function(action)
+{
+    var btn = this._getButton(action)
+    if (btn)
+    {
+        Nuvola.clickOnElement(btn);
+        return true;
+    }
+    return false;
+}
+
 // Handler of playback actions
 WebApp._onActionActivated = function(emitter, name, param)
 {
+    switch (name)
+    {
+    case PlayerAction.TOGGLE_PLAY:
+        if (!WebApp._clickButton(Buttons.PAUSE))
+            WebApp._clickButton(Buttons.PLAY);
+        break;
+    case PlayerAction.PLAY:
+        WebApp._clickButton(Buttons.PLAY);
+        break;
+    case PlayerAction.PAUSE:
+    case PlayerAction.STOP:
+        WebApp._clickButton(Buttons.PAUSE);
+        break;
+    case PlayerAction.PREV_SONG:
+        WebApp._clickButton(Buttons.PREV_SONG);
+        break;
+    case PlayerAction.NEXT_SONG:
+        WebApp._clickButton(Buttons.NEXT_SONG);
+        break;
+    }
 }
 
 WebApp.start();
