@@ -1,4 +1,4 @@
-SiriusXM Nuvola Player App - not finished yet
+SiriusXM Nuvola Player App
 =============================
 
 Integration of SiriusXM into your linux desktop via
