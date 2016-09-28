@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2 - unreleased
+1.2 - September 28, 2016
 ----------------
 
   * Fix script id in the installation script.
