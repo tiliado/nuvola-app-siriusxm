@@ -22,7 +22,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Service integration id
-APP_ID = template
+APP_ID = siriusxm
 # Default installation destination
 DEST ?= $(HOME)/.local/share/nuvolaplayer3/web_apps
 # Files to be installed
