@@ -105,16 +105,18 @@ WebApp.update = function()
         "#player p[ng-show='model.showArtistName']",
         "div.music-talk-view .np-track-artist span:first-child");
     
-    /* TODO: Album art has restricted access */
-    //~ var elm = document.querySelector("div.np-track-art img");
-    //~ if (elm && elm.src != "https://player.siriusxm.com/assets/images/Transparent.gif" && elm.src != "assets/images/Transparent.gif")
-    //~ {
-        //~ track.artLocation = elm.src;
-    //~ }
     
-    var elm = document.querySelector("div.now-playing-image img");
-    if (elm)
+    var elm = document.querySelector("div.music-talk-view .np-track-art img");
+    if (elm && elm.src != "https://player.siriusxm.com/assets/images/Transparent.gif" && elm.src != "assets/images/Transparent.gif")
+    {
         track.artLocation = elm.src;
+    }
+    else
+    {
+        elm = document.querySelector("div.now-playing-image img");
+        if (elm)
+            track.artLocation = elm.src;
+    }
     
     player.setTrack(track);
     

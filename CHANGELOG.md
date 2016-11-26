@@ -5,7 +5,7 @@ Changelog
 ----------------
 
   * Fixed parsing of the track title and the artist.
-
+  * Album art is fetched and displayed. Requires Nuvola Player 3.1 because of restricted access to the images.
 
 1.2 - September 28, 2016
 ----------------
