@@ -1,0 +1,22 @@
+{
+    "id": "siriusxm", 
+    "name": "SiriusXM", 
+    "maintainer_name": "Jiří Janoušek", 
+    "maintainer_link": "https://github.com/fenryxo", 
+    "version_major": 1, 
+    "version_minor": 2, 
+    "api_major": 3, 
+    "api_minor": 0, 
+    "categories": "AudioVideo;Audio;", 
+    "home_url": "https://player.siriusxm.com/", 
+    "license": "2-Clause BSD, CC-BY-3.0", 
+    "window_width": 1340, 
+    "window_height": 800, 
+    "build": {
+        "icons": [
+            "icons/icon.svg SCALABLE 64 128 256", 
+            "icons/icon-xs.svg 16 22 24", 
+            "icons/icon-sm.svg 32 48"
+        ]
+    }
+}
