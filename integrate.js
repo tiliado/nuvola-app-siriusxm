@@ -69,8 +69,14 @@ WebApp._onPageReady = function()
 
 function getElmText(selector)
 {
-    var elm = document.querySelector(selector);
-    return elm ? elm.innerText.trim() || null : null;
+    for (var i = 0; i < arguments.length; i++)
+    {
+        var elm = document.querySelector(arguments[i]);
+        var text = elm ? elm.innerText.trim() || null : null;
+        if (text)
+            return text;
+    }
+    return null;
 }
 
 // Extract data from the web page
@@ -90,10 +96,14 @@ WebApp.update = function()
         elm.style.visibility = "hidden";
     
     /* Parse track metadata */
-    track.title = getElmText("#player p[ng-show='model.showTrackName']");
-    if (!track.title)
-        track.title = getElmText("#player p[ng-show='model.showShowName']");
-    track.artist = getElmText("#player p[ng-show='model.showArtistName']");
+    track.title = getElmText(
+        "#player p[ng-show='model.showTrackName']",
+        "#player p[ng-show='model.showShowName']",
+        "div.music-talk-view .np-track-artist span:last-child"
+        );
+    track.artist = getElmText(
+        "#player p[ng-show='model.showArtistName']",
+        "div.music-talk-view .np-track-artist span:first-child");
     
     /* TODO: Album art has restricted access */
     //~ var elm = document.querySelector("div.np-track-art img");

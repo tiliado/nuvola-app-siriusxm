@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.3 - unreleased
+----------------
+
+  * Fixed parsing of the track title and the artist.
+
+
 1.2 - September 28, 2016
 ----------------
 
