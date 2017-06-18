@@ -1,6 +1,11 @@
 Changelog
 =========
 
++1
+--
+
+  * Metadata was updated according to the latest Nuvola SDK requirements.
+
 1.3 - November 26th, 2016
 -------------------------
 
