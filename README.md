@@ -1,8 +1,8 @@
-SiriusXM Nuvola Player App
-=============================
+SiriusXM (Nuvola app)
+===================
 
 Integration of SiriusXM into your linux desktop via
-[Nuvola Player](https://github.com/tiliado/nuvolaplayer).
+[Nuvola Apps Runtime](https://github.com/tiliado/nuvolaruntime).
  
 Support
 -------
