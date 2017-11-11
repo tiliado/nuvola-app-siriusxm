@@ -36,10 +36,10 @@ var PlayerAction = Nuvola.PlayerAction;
 
 // SiriusXM Control Buttons
 var Buttons= {
-    PLAY: "play",
-    PAUSE: "pause",
-    PREV_SONG: "rewind",
-    NEXT_SONG: "skip"
+    PLAY: "RegularPlay01",
+    PAUSE: "RegularPause",
+    PREV_SONG: "RegularPrev",
+    NEXT_SONG: "RegularNext"
 }
 
 // Create new WebApp prototype
@@ -71,7 +71,8 @@ function getElmText(selector)
 {
     for (var i = 0; i < arguments.length; i++)
     {
-        var elm = document.querySelector(arguments[i]);
+        var selector = arguments[i];
+        var elm = document.querySelector(selector);
         var text = elm ? elm.innerText.trim() || null : null;
         if (text)
             return text;
@@ -91,22 +92,28 @@ WebApp.update = function()
     }
     
     /* Hide the mini-player button as it's broken in Nuvola. */
-    var elm = document.querySelector("#player div.pop-out");
+    var elm = document.querySelector("#player div.pop-out-control");
     if (elm)
         elm.style.visibility = "hidden";
     
     /* Parse track metadata */
-    track.title = getElmText(
+    var text = getElmText(
         "#player p[ng-show='model.showTrackName']",
-        "#player p[ng-show='model.showShowName']",
-        "div.music-talk-view .np-track-artist span:last-child"
-        );
-    track.artist = getElmText(
-        "#player p[ng-show='model.showArtistName']",
-        "div.music-talk-view .np-track-artist span:first-child");
+        "#player p[ng-show='model.showShowName']")
+    if (!text) {
+        elm = document.querySelector("div.music-talk-view .np-track-artist");
+        text = elm && elm.lastChild ? elm.lastChild.nodeValue || null : null;
+    }
+    track.title = text;
+        
+    text = getElmText("#player p[ng-show='model.showArtistName']")
+    if (!text) {
+        elm = document.querySelector("div.music-talk-view .np-track-artist");
+        text = elm && elm.lastChild ? elm.firstChild.nodeValue || null : null;
+    }
+    track.artist = text;
     
-    
-    var elm = document.querySelector("div.music-talk-view .np-track-art img");
+    elm = document.querySelector("div.music-talk-view .np-track-art img");
     if (elm && elm.src != "https://player.siriusxm.com/assets/images/Transparent.gif" && elm.src != "assets/images/Transparent.gif")
     {
         track.artLocation = elm.src;
@@ -150,7 +157,7 @@ WebApp.update = function()
 
 WebApp._getButton = function(action)
 {
-    var elm = document.querySelector(".scrub-controls div[ng-click='" + action + "()']");
+    var elm = document.querySelector(".scrub-controls button span." + action);
     return elm && !elm.classList.contains("ng-hide") ? elm : false;
 }
 
