@@ -1,8 +1,8 @@
 Changelog
 =========
 
-+1
---
+1.4 - November 11th, 2017
+----------------------
 
   * Metadata was updated according to the latest Nuvola SDK requirements.
   * Metadata parsing adapted to recent SiriusXM changes.
