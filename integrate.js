@@ -140,6 +140,12 @@
     player.setCanGoNext(!!this._getButton(Buttons.NEXT_SONG))
     player.setPlaybackState(state)
 
+    elm = document.querySelector('#volumeControl div')
+    if (elm) {
+      player.updateVolume(elm.style.width.substr(0, elm.style.width.length - 1) / 100)
+    }
+    player.setCanChangeVolume(!!elm)
+
     // Schedule the next update
     setTimeout(this.update.bind(this), 500)
   }
@@ -178,6 +184,12 @@
         break
       case PlayerAction.NEXT_SONG:
         WebApp._clickButton(Buttons.NEXT_SONG)
+        break
+      case PlayerAction.CHANGE_VOLUME:
+        var elm = document.querySelector('#volumeControl')
+        if (elm) {
+          Nuvola.clickOnElement(elm, param, 0.5)
+        }
         break
     }
   }
