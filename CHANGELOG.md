@@ -1,6 +1,8 @@
 Changelog
 =========
 
+  * Switched to Chromium backend for audio playback without Flash plugin.
+
 1.4 - November 11th, 2017
 ----------------------
 
