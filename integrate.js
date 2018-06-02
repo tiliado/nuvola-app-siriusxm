@@ -25,25 +25,13 @@
 'use strict';
 
 (function (Nuvola) {
-  // Create media player component
   var player = Nuvola.$object(Nuvola.MediaPlayer)
 
-  // Handy aliases
   var PlaybackState = Nuvola.PlaybackState
   var PlayerAction = Nuvola.PlayerAction
 
-  // SiriusXM Control Buttons
-  var Buttons = {
-    PLAY: 'RegularPlay01',
-    PAUSE: 'RegularPause',
-    PREV_SONG: 'RegularPrev',
-    NEXT_SONG: 'RegularNext'
-  }
-
-  // Create new WebApp prototype
   var WebApp = Nuvola.$WebApp()
 
-  // Initialization routines
   WebApp._onInitWebWorker = function (emitter) {
     Nuvola.WebApp._onInitWebWorker.call(this, emitter)
 
@@ -55,108 +43,45 @@
     }
   }
 
-// Page is ready for magic
   WebApp._onPageReady = function () {
-    // Connect handler for signal ActionActivated
     Nuvola.actions.connect('ActionActivated', this)
-
-    // Start update routine
     this.update()
   }
 
-  function getElmText (selector) {
-    for (var i = 0; i < arguments.length; i++) {
-      selector = arguments[i]
-      var elm = document.querySelector(selector)
-      var text = elm ? elm.innerText.trim() || null : null
-      if (text) {
-        return text
-      }
-    }
-    return null
-  }
-
-// Extract data from the web page
   WebApp.update = function () {
     var track = {
-      title: null,
-      artist: null,
+      title: Nuvola.queryText('player-controls program-descriptive-text .track-name'),
+      artist: Nuvola.queryText('player-controls program-descriptive-text .artist-name'),
       album: null,
-      artLocation: null,
+      artLocation: Nuvola.queryAttribute('player-controls program-descriptive-text img.channel-image', 'src'),
       rating: null
     }
-
-    /* Hide the mini-player button as it's broken in Nuvola. */
-    var elm = document.querySelector('#player div.pop-out-control')
-    if (elm) {
-      elm.style.visibility = 'hidden'
-    }
-
-    /* Parse track metadata */
-    var text = getElmText(
-        "#player p[ng-show='model.showTrackName']",
-        "#player p[ng-show='model.showShowName']")
-    if (!text) {
-      elm = document.querySelector('div.music-talk-view .np-track-artist')
-      text = elm && elm.lastChild ? elm.lastChild.nodeValue || null : null
-    }
-    track.title = text
-
-    text = getElmText("#player p[ng-show='model.showArtistName']")
-    if (!text) {
-      elm = document.querySelector('div.music-talk-view .np-track-artist')
-      text = elm && elm.lastChild ? elm.firstChild.nodeValue || null : null
-    }
-    track.artist = text
-
-    elm = document.querySelector('div.music-talk-view .np-track-art img')
-    if (elm && elm.src !== 'https://player.siriusxm.com/assets/images/Transparent.gif' && elm.src !== 'assets/images/Transparent.gif') {
-      track.artLocation = elm.src
-    } else {
-      elm = document.querySelector('div.now-playing-image img')
-      if (elm) {
-        track.artLocation = elm.src
-      }
-    }
-
     player.setTrack(track)
 
-    /* Parse controls */
+    var elms = this._getElements()
     var state
-    if (this._getButton(Buttons.PLAY)) {
+    if (elms.play) {
       state = PlaybackState.PAUSED
-      player.setCanPlay(true)
-      player.setCanPause(false)
-    } else if (this._getButton(Buttons.PAUSE)) {
+    } else if (elms.pause) {
       state = PlaybackState.PLAYING
-      player.setCanPause(true)
-      player.setCanPlay(false)
     } else {
       state = PlaybackState.UNKNOWN
-      player.setCanPause(false)
-      player.setCanPlay(false)
     }
-    player.setCanGoPrev(!!this._getButton(Buttons.PREV_SONG))
-    player.setCanGoNext(!!this._getButton(Buttons.NEXT_SONG))
+
+    player.setCanPlay(!!elms.play)
+    player.setCanPause(!!elms.pause)
+    player.setCanGoPrev(!!elms.prev)
+    player.setCanGoNext(!!elms.next)
     player.setPlaybackState(state)
 
-    elm = document.querySelector('#volumeControl div')
-    if (elm) {
-      player.updateVolume(elm.style.width.substr(0, elm.style.width.length - 1) / 100)
-    }
-    player.setCanChangeVolume(!!elm)
+    player.updateVolume(Nuvola.queryText('player-controls .volume-bar .volume-hidden', (value) => value / 100))
+    player.setCanChangeVolume(elms.volume && elms.volumeSlider)
 
     // Schedule the next update
     setTimeout(this.update.bind(this), 500)
   }
 
-  WebApp._getButton = function (action) {
-    var elm = document.querySelector('.scrub-controls button span.' + action)
-    return elm && !elm.classList.contains('ng-hide') ? elm : false
-  }
-
-  WebApp._clickButton = function (action) {
-    var btn = this._getButton(action)
+  WebApp._clickButton = function (btn) {
     if (btn) {
       Nuvola.clickOnElement(btn)
       return true
@@ -164,31 +89,58 @@
     return false
   }
 
+  WebApp._getElements = function () {
+    var elms = {
+      play: document.querySelector('player-controls .play-pause-btn'),
+      pause: null,
+      prev: document.querySelector('player-controls .skip-back-btn'),
+      next: document.querySelector('player-controls .skip-forward-btn'),
+      volume: document.querySelector('player-controls .volume-button'),
+      volumeBar: document.querySelector('player-controls .volume-bar'),
+      volumeSlider: document.querySelector('player-controls input.volume-bar--slider')
+    }
+    for (var key in elms) {
+      if (elms[key] && elms[key].parentNode.classList.contains('visibility-hidden')) {
+        elms[key] = null
+      }
+    }
+    if (elms.play) {
+      var img = elms.play.querySelector('img')
+      if (img && img.src.includes('pause')) {
+        elms.pause = elms.play
+        elms.play = null
+      }
+    }
+    return elms
+  }
+
 // Handler of playback actions
   WebApp._onActionActivated = function (emitter, name, param) {
+    var elms = this._getElements()
     switch (name) {
       case PlayerAction.TOGGLE_PLAY:
-        if (!WebApp._clickButton(Buttons.PAUSE)) {
-          WebApp._clickButton(Buttons.PLAY)
+        if (!this._clickButton(elms.pause)) {
+          this._clickButton(elms.play)
         }
         break
       case PlayerAction.PLAY:
-        WebApp._clickButton(Buttons.PLAY)
+        this._clickButton(elms.play)
         break
       case PlayerAction.PAUSE:
       case PlayerAction.STOP:
-        WebApp._clickButton(Buttons.PAUSE)
+        this._clickButton(elms.pause)
         break
       case PlayerAction.PREV_SONG:
-        WebApp._clickButton(Buttons.PREV_SONG)
+        this._clickButton(elms.prev)
         break
       case PlayerAction.NEXT_SONG:
-        WebApp._clickButton(Buttons.NEXT_SONG)
+        this._clickButton(elms.next)
         break
       case PlayerAction.CHANGE_VOLUME:
-        var elm = document.querySelector('#volumeControl')
-        if (elm) {
-          Nuvola.clickOnElement(elm, param, 0.5)
+        if (elms.volumeSlider) {
+          elms.volumeBar.removeAttribute('hidden')
+          Nuvola.setInputValueWithEvent(elms.volumeSlider, param * 100)
+          elms.volumeBar.setAttribute('hidden', true)
         }
         break
     }

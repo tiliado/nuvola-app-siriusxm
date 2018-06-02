@@ -3,6 +3,7 @@ Changelog
 
   * Switched to Chromium backend for audio playback without Flash plugin.
   * The volume slider was integrated.
+  * The script was adapted to recent changes of the web interface.
 
 1.4 - November 11th, 2017
 ----------------------
