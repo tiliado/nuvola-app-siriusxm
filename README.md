@@ -1,4 +1,4 @@
-SiriusXM • Nuvola Apps Runtime
+SiriusXM • Nuvola Apps Runtime [![CircleCI](https://circleci.com/gh/tiliado/nuvola-app-siriusxm/tree/master.svg?style=svg)](https://circleci.com/gh/tiliado/nuvola-app-siriusxm/tree/master)
 ==============================
 
 Integration of SiriusXM into your linux desktop via
