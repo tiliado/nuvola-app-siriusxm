@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 Jiří Janoušek <janousek.jiri@gmail.com>
+ * Copyright 2016-2019 Jiří Janoušek <janousek.jiri@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,12 +25,67 @@
 'use strict';
 
 (function (Nuvola) {
+  var _ = Nuvola.Translate.gettext
+  var C_ = Nuvola.Translate.pgettext
+
+  var COUNTRY_VARIANT = 'app.country_variant'
+  var HOME_PAGE = 'https://player.siriusxm.{1}/'
+  var COUNTRY_VARIANTS = [
+    ['com', C_('Sirius variant', 'United States')],
+    ['ca', C_('Sirius variant', 'Canada')]
+  ]
+
   var player = Nuvola.$object(Nuvola.MediaPlayer)
 
   var PlaybackState = Nuvola.PlaybackState
   var PlayerAction = Nuvola.PlayerAction
 
   var WebApp = Nuvola.$WebApp()
+
+  WebApp._onInitAppRunner = function (emitter) {
+    Nuvola.config.setDefault(COUNTRY_VARIANT, 'com')
+    Nuvola.core.connect('InitializationForm', this)
+    Nuvola.core.connect('PreferencesForm', this)
+    Nuvola.config.connect('ConfigChanged', this)
+  }
+
+  WebApp._onInitializationForm = function (emitter, values, entries) {
+    if (Nuvola.config.hasKey(COUNTRY_VARIANT)) {
+      var variant = Nuvola.config.get(COUNTRY_VARIANT)
+      for (var entry of COUNTRY_VARIANTS) {
+        if (entry[0] === variant) {
+          return
+        }
+      }
+    }
+    Nuvola.config.set(this.LAST_URI, null)
+    this.appendPreferences(values, entries)
+  }
+
+  WebApp._onPreferencesForm = function (emitter, values, entries) {
+    this.appendPreferences(values, entries)
+  }
+
+  WebApp.appendPreferences = function (values, entries) {
+    values[COUNTRY_VARIANT] = Nuvola.config.get(COUNTRY_VARIANT)
+    entries.push(['header', _('Sirius XM')])
+    entries.push(['label', _('National variant')])
+    for (var i = 0; i < COUNTRY_VARIANTS.length; i++) {
+      entries.push(['option', COUNTRY_VARIANT, COUNTRY_VARIANTS[i][0], COUNTRY_VARIANTS[i][1]])
+    }
+  }
+
+  WebApp._onHomePageRequest = function (emitter, result) {
+    result.url = Nuvola.format(HOME_PAGE, Nuvola.config.get(COUNTRY_VARIANT))
+  }
+
+  WebApp._onConfigChanged = function (emitter, key) {
+    Nuvola.log('ehm _onConfigChanged {1} {2}', key, Nuvola.config.get(key))
+    if (key === COUNTRY_VARIANT) {
+      Nuvola.config.set(this.LAST_URI, null)
+      Nuvola.actions.activate(Nuvola.BrowserAction.GO_HOME)
+    }
+  }
 
   WebApp._onInitWebWorker = function (emitter) {
     Nuvola.WebApp._onInitWebWorker.call(this, emitter)

@@ -1,6 +1,8 @@
 Changelog
 =========
 
+  * Canadian national variant of the website was added. Issue: tiliado/nuvolaruntime#539
+
 1.5 - June 2nd, 2018
 --------------------
 
