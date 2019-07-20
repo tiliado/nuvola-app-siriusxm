@@ -129,7 +129,7 @@
     player.setCanGoNext(!!elms.next)
     player.setPlaybackState(state)
 
-    player.updateVolume(Nuvola.queryText('player-controls .volume-bar .volume-hidden', (value) => value / 100))
+    player.updateVolume(elms.volumeSlider ? elms.volumeSlider.getAttribute('aria-valuenow') / 100 : 1)
     player.setCanChangeVolume(elms.volume && elms.volumeSlider)
 
     // Schedule the next update
@@ -155,7 +155,7 @@
       volumeSlider: document.querySelector('player-controls input.volume-bar--slider')
     }
     for (var key in elms) {
-      if (elms[key] && elms[key].parentNode.classList.contains('visibility-hidden')) {
+      if (elms[key] && (elms[key].disabled || elms[key].parentNode.classList.contains('visibility-hidden'))) {
         elms[key] = null
       }
     }
