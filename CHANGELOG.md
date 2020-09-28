@@ -1,6 +1,9 @@
 Changelog
 =========
 
+1.6 - September 28, 2020
+------------------------
+
   * Canadian national variant of the website was added. Issue: tiliado/nuvolaruntime#539
   * Metadata parsing was adjusted to recent changes of the web interface.
 
