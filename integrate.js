@@ -25,22 +25,22 @@
 'use strict';
 
 (function (Nuvola) {
-  var _ = Nuvola.Translate.gettext
-  var C_ = Nuvola.Translate.pgettext
+  const _ = Nuvola.Translate.gettext
+  const C_ = Nuvola.Translate.pgettext
 
-  var COUNTRY_VARIANT = 'app.country_variant'
-  var HOME_PAGE = 'https://player.siriusxm.{1}/'
-  var COUNTRY_VARIANTS = [
+  const COUNTRY_VARIANT = 'app.country_variant'
+  const HOME_PAGE = 'https://player.siriusxm.{1}/'
+  const COUNTRY_VARIANTS = [
     ['com', C_('Sirius variant', 'United States')],
     ['ca', C_('Sirius variant', 'Canada')]
   ]
 
-  var player = Nuvola.$object(Nuvola.MediaPlayer)
+  const player = Nuvola.$object(Nuvola.MediaPlayer)
 
-  var PlaybackState = Nuvola.PlaybackState
-  var PlayerAction = Nuvola.PlayerAction
+  const PlaybackState = Nuvola.PlaybackState
+  const PlayerAction = Nuvola.PlayerAction
 
-  var WebApp = Nuvola.$WebApp()
+  const WebApp = Nuvola.$WebApp()
 
   WebApp._onInitAppRunner = function (emitter) {
     Nuvola.config.setDefault(COUNTRY_VARIANT, 'com')
@@ -51,8 +51,8 @@
 
   WebApp._onInitializationForm = function (emitter, values, entries) {
     if (Nuvola.config.hasKey(COUNTRY_VARIANT)) {
-      var variant = Nuvola.config.get(COUNTRY_VARIANT)
-      for (var entry of COUNTRY_VARIANTS) {
+      const variant = Nuvola.config.get(COUNTRY_VARIANT)
+      for (const entry of COUNTRY_VARIANTS) {
         if (entry[0] === variant) {
           return
         }
@@ -70,7 +70,7 @@
     values[COUNTRY_VARIANT] = Nuvola.config.get(COUNTRY_VARIANT)
     entries.push(['header', _('Sirius XM')])
     entries.push(['label', _('National variant')])
-    for (var i = 0; i < COUNTRY_VARIANTS.length; i++) {
+    for (let i = 0; i < COUNTRY_VARIANTS.length; i++) {
       entries.push(['option', COUNTRY_VARIANT, COUNTRY_VARIANTS[i][0], COUNTRY_VARIANTS[i][1]])
     }
   }
@@ -90,7 +90,7 @@
   WebApp._onInitWebWorker = function (emitter) {
     Nuvola.WebApp._onInitWebWorker.call(this, emitter)
 
-    var state = document.readyState
+    const state = document.readyState
     if (state === 'interactive' || state === 'complete') {
       this._onPageReady()
     } else {
@@ -104,7 +104,7 @@
   }
 
   WebApp.update = function () {
-    var track = {
+    const track = {
       title: Nuvola.queryText('player-controls program-descriptive-text .track-name'),
       artist: Nuvola.queryText('player-controls program-descriptive-text .artist-name'),
       album: null,
@@ -113,8 +113,8 @@
     }
     player.setTrack(track)
 
-    var elms = this._getElements()
-    var state
+    const elms = this._getElements()
+    let state
     if (elms.play) {
       state = PlaybackState.PAUSED
     } else if (elms.pause) {
@@ -145,7 +145,7 @@
   }
 
   WebApp._getElements = function () {
-    var elms = {
+    const elms = {
       play: document.querySelector('player-controls .play-pause-btn'),
       pause: null,
       prev: document.querySelector('player-controls .skip-back-btn'),
@@ -154,13 +154,13 @@
       volumeBar: document.querySelector('player-controls .volume-bar'),
       volumeSlider: document.querySelector('player-controls input.volume-bar--slider')
     }
-    for (var key in elms) {
+    for (const key in elms) {
       if (elms[key] && (elms[key].disabled || elms[key].parentNode.classList.contains('visibility-hidden'))) {
         elms[key] = null
       }
     }
     if (elms.play) {
-      var img = elms.play.querySelector('img')
+      const img = elms.play.querySelector('img')
       if (img && img.src.includes('pause')) {
         elms.pause = elms.play
         elms.play = null
@@ -171,7 +171,7 @@
 
   // Handler of playback actions
   WebApp._onActionActivated = function (emitter, name, param) {
-    var elms = this._getElements()
+    const elms = this._getElements()
     switch (name) {
       case PlayerAction.TOGGLE_PLAY:
         if (!this._clickButton(elms.pause)) {
